@@ -22,6 +22,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       yield SearchLoading();
       yield* _searchMapping(event);
     }
+    if (event is SearchResetEvent) {
+      yield SearchInitial();
+    }
   }
 
   Stream<SearchState> _searchMapping(SearchTextEnteredEvent event) async* {

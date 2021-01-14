@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:network_caching_hive/bloc/search_bloc/search_bloc.dart';
 import 'package:toast/toast.dart';
-import 'package:network_caching_hive/bloc/news_bloc/news_bloc.dart';
 import 'package:network_caching_hive/models/models.dart';
 import 'package:network_caching_hive/screens/browser.dart';
 import 'package:network_caching_hive/utils/utils.dart';
@@ -36,6 +36,9 @@ class _SearchPageState extends State<SearchPage> {
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
                 hintText: 'Enter Text', icon: Icon(Icons.search)),
+            onChanged: (value) {
+              BlocProvider.of<SearchBloc>(context).add(SearchResetEvent());
+            },
           ),
           actions: [
             RaisedButton(
@@ -53,11 +56,16 @@ class _SearchPageState extends State<SearchPage> {
                         duration: Toast.LENGTH_SHORT,
                         gravity: Toast.BOTTOM,
                       );
+                      BlocProvider.of<SearchBloc>(context)
+                          .add(SearchResetEvent());
                       return;
                     } else {
-                      BlocProvider.of<NewsBloc>(context)
-                          .add(SearchEvent(topic: _searchText));
+                      BlocProvider.of<SearchBloc>(context)
+                          .add(SearchTextEnteredEvent(topic: _searchText));
                     }
+                  } else {
+                    BlocProvider.of<SearchBloc>(context)
+                        .add(SearchResetEvent());
                   }
                 })
           ],
@@ -66,15 +74,15 @@ class _SearchPageState extends State<SearchPage> {
           color: Colors.grey,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: BlocBuilder<NewsBloc, NewsState>(
+            child: BlocBuilder<SearchBloc, SearchState>(
               builder: (context, state) {
-                if (state is NewsSearchOptionLoadedState) {
+                if (state is SearchOptionLoadedState) {
                   return searchItem(state.topic, state.newsList);
                 }
-                if (state is NewsSearchErrorState) {
+                if (state is SearchErrorState) {
                   return searchError(state.topic);
                 }
-                if (state is NewsLoading) {
+                if (state is SearchLoading) {
                   return searchLoading();
                 }
                 return Container();

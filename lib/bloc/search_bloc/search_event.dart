@@ -7,3 +7,5 @@ class SearchTextEnteredEvent extends SearchEvent {
   final String topic;
   SearchTextEnteredEvent({@required this.topic});
 }
+
+class SearchResetEvent extends SearchEvent {}

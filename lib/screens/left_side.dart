@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:network_caching_hive/bloc/db_bloc/db_bloc.dart';
 import 'package:network_caching_hive/bloc/navigation_bloc/navigation_bloc.dart';
 import 'package:network_caching_hive/bloc/news_bloc/news_bloc.dart';
+import 'package:network_caching_hive/bloc/search_bloc/search_bloc.dart';
 
 import 'search_page.dart';
 
@@ -79,12 +80,14 @@ class LeftSide extends StatelessWidget {
                 BlocProvider.of<NavigationBloc>(context)
                     .add(NavigationHomeTappedEvent());
                 BlocProvider.of<NewsBloc>(context).add(NewsHomeTappedEvent());
+                BlocProvider.of<SearchBloc>(context).add(SearchResetEvent());
               } else {
                 BlocProvider.of<DbBloc>(context)
                     .add(AddTopicDbEvent(topic: _searchData));
                 BlocProvider.of<NavigationBloc>(context)
                     .add(NavigationHomeTappedEvent());
                 BlocProvider.of<NewsBloc>(context).add(NewsHomeTappedEvent());
+                BlocProvider.of<SearchBloc>(context).add(SearchResetEvent());
               }
             },
           ),
