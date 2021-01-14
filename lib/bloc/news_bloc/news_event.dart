@@ -12,11 +12,6 @@ class NewsHomeTappedEvent extends NewsEvent {}
 
 class NewsInitTriggerEvent extends NewsEvent {}
 
-class SearchEvent extends NewsEvent {
-  final String topic;
-  SearchEvent({@required this.topic});
-}
-
 class RefreshItemEvent extends NewsEvent {
   final String topic;
   RefreshItemEvent({@required this.topic});

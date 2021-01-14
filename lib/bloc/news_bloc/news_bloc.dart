@@ -37,9 +37,6 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
     if (event is NewsHomeTappedEvent) {
       yield* _newsHomeMapping(homeKey);
     }
-    if (event is SearchEvent) {
-      yield* _newsSearchMapping(event);
-    }
     if (event is RefreshItemEvent) {
       yield* _newsItemRefreshMapping(event);
     }
@@ -164,20 +161,6 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       }
     } else {
       yield NewsError();
-    }
-  }
-
-  Stream<NewsState> _newsSearchMapping(SearchEvent event) async* {
-    try {
-      final String _searchRssData = await _getRssDataFromNetwork(event.topic);
-      List<News> _searchNewsList = TimelineArranger.arrangeInTimeline(
-          networkRepository.rssParser(_searchRssData));
-      yield _searchNewsList.length != 0
-          ? NewsSearchOptionLoadedState(
-              topic: event.topic, newsList: _searchNewsList)
-          : NewsSearchErrorState(topic: event.topic);
-    } catch (e) {
-      yield NewsSearchErrorState(topic: event.topic);
     }
   }
 }

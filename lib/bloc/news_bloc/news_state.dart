@@ -22,14 +22,3 @@ class NewsHomeLoadedState extends NewsState {
 class NewsLoading extends NewsState {}
 
 class NewsError extends NewsState {}
-
-class NewsSearchOptionLoadedState extends NewsState {
-  final String topic;
-  final List<News> newsList;
-  NewsSearchOptionLoadedState({@required this.topic, @required this.newsList});
-}
-
-class NewsSearchErrorState extends NewsState {
-  final String topic;
-  NewsSearchErrorState({@required this.topic});
-}
