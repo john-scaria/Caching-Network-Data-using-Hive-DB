@@ -10,9 +10,12 @@ part 'search_event.dart';
 part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  SearchBloc({@required this.networkRepository}) : super(SearchInitial());
+  SearchBloc({@required this.networkRepository, @required this.dbRepository})
+      : super(SearchInitial());
 
   final NetworkRepository networkRepository;
+  final DbRepository dbRepository;
+  bool isFound = false;
 
   @override
   Stream<SearchState> mapEventToState(
@@ -29,12 +32,14 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   Stream<SearchState> _searchMapping(SearchTextEnteredEvent event) async* {
     try {
+      final List<String> _allTopics = dbRepository.getAllTopics();
+      isFound = _allTopics.contains(event.topic) ? true : false;
       final String _searchRssData = await _getRssDataFromNetwork(event.topic);
       List<News> _searchNewsList = TimelineArranger.arrangeInTimeline(
           networkRepository.rssParser(_searchRssData));
       yield _searchNewsList.length != 0
           ? SearchOptionLoadedState(
-              topic: event.topic, newsList: _searchNewsList)
+              topic: event.topic, newsList: _searchNewsList, isFound: isFound)
           : SearchErrorState(topic: event.topic);
     } catch (e) {
       yield SearchErrorState(topic: event.topic);

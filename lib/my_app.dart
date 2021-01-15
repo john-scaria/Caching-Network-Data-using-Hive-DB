@@ -67,6 +67,7 @@ class _MyAppState extends State<MyApp> {
       BlocProvider<SearchBloc>(
         create: (context) => SearchBloc(
           networkRepository: _networkRepository,
+          dbRepository: _dbRepository,
         ),
       ),
       BlocProvider<DarkBloc>(

@@ -77,7 +77,7 @@ class _SearchPageState extends State<SearchPage> {
             child: BlocBuilder<SearchBloc, SearchState>(
               builder: (context, state) {
                 if (state is SearchOptionLoadedState) {
-                  return searchItem(state.topic, state.newsList);
+                  return searchItem(state.topic, state.newsList, state.isFound);
                 }
                 if (state is SearchErrorState) {
                   return searchError(state.topic);
@@ -94,17 +94,35 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget searchItem(String _topic, List<News> _newsList) => Container(
+  Widget searchItem(String _topic, List<News> _newsList, bool isFound) =>
+      Container(
         decoration: BoxDecoration(
             color: Colors.orange, borderRadius: BorderRadius.circular(10.0)),
         child: ListTile(
           title: Text(_topic),
-          subtitle: Text('Available'),
-          trailing: IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                Navigator.pop(context, _topic);
-              }),
+          subtitle: isFound ? Text('Topic Added Already!!') : Text('Available'),
+          trailing: Container(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              shape: BoxShape.circle,
+            ),
+            child: isFound
+                ? IconButton(
+                    icon: Icon(Icons.done),
+                    onPressed: () {
+                      Toast.show(
+                        "Topic added before!!",
+                        context,
+                        duration: Toast.LENGTH_SHORT,
+                        gravity: Toast.BOTTOM,
+                      );
+                    })
+                : IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      Navigator.pop(context, _topic);
+                    }),
+          ),
           onTap: () => openBottomSheet(context, _newsList, _topic),
         ),
       );

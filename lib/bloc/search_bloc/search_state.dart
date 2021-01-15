@@ -10,7 +10,9 @@ class SearchLoading extends SearchState {}
 class SearchOptionLoadedState extends SearchState {
   final String topic;
   final List<News> newsList;
-  SearchOptionLoadedState({@required this.topic, @required this.newsList});
+  final bool isFound;
+  SearchOptionLoadedState(
+      {@required this.topic, @required this.newsList, @required this.isFound});
 }
 
 class SearchErrorState extends SearchState {
