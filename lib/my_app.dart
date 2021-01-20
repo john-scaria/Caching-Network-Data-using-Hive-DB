@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:network_caching_hive/bloc/dark_bloc/dark_bloc.dart';
 import 'package:network_caching_hive/bloc/news_bloc/news_bloc.dart';
 import 'package:network_caching_hive/bloc/search_bloc/search_bloc.dart';
@@ -22,6 +23,7 @@ class _MyAppState extends State<MyApp> {
   CacheRepository _cacheRepository;
   NetworkRepository _networkRepository;
   DarkRepository _darkRepository;
+  DataConnectionChecker _dataConnectionChecker;
   final String dbName = StringData.topicBoxName;
   final String homeDbName = StringData.homeBoxName;
   final String darkDbName = StringData.darkBoxName;
@@ -38,6 +40,7 @@ class _MyAppState extends State<MyApp> {
         networkClient: NetworkClient(httpClient: http.Client()));
     _darkRepository = DarkRepository(
         darkClient: DarkClient(dBox: Hive.box<bool>(darkDbName)));
+    _dataConnectionChecker = DataConnectionChecker();
     super.initState();
   }
 
@@ -62,6 +65,7 @@ class _MyAppState extends State<MyApp> {
         create: (context) => NewsBloc(
           cacheRepository: _cacheRepository,
           networkRepository: _networkRepository,
+          dataConnectionChecker: _dataConnectionChecker,
         )..add(NewsInitTriggerEvent()),
       ),
       BlocProvider<SearchBloc>(

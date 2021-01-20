@@ -21,4 +21,13 @@ class NewsHomeLoadedState extends NewsState {
 
 class NewsLoading extends NewsState {}
 
-class NewsError extends NewsState {}
+class NewsItemError extends NewsState {
+  final String message;
+  final String topic;
+  NewsItemError({@required this.message, @required this.topic});
+}
+
+class NewsHomeError extends NewsState {
+  final String message;
+  NewsHomeError({@required this.message});
+}

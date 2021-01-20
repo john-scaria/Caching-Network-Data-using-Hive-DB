@@ -161,9 +161,40 @@ class _NewsBodyState extends State<NewsBody> {
             child: newsList(state.newsList),
           );
         }
-        if (state is NewsError) {
+        if (state is NewsItemError) {
           return Center(
-            child: Text('News UnAvailable !!'),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(state.message),
+                IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: () {
+                    BlocProvider.of<NewsBloc>(context).add(
+                      RefreshItemEvent(topic: state.topic),
+                    );
+                  },
+                )
+              ],
+            ),
+          );
+        }
+        if (state is NewsHomeError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(state.message),
+                IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: () {
+                    BlocProvider.of<NewsBloc>(context).add(
+                      RefreshHomeEvent(),
+                    );
+                  },
+                )
+              ],
+            ),
           );
         }
         return Center(child: CircularProgressIndicator());

@@ -49,9 +49,21 @@ class _SearchPageState extends State<SearchPage> {
                   String _searchText =
                       _searchController.text?.trim()?.toUpperCase();
                   if (_searchText.isNotEmpty && _searchText != null) {
-                    if (_searchText.length > 20) {
+                    if (SearchTextChecker.lengthAboveTwentyChecker(
+                        _searchText)) {
                       Toast.show(
                         "Topic length too long!!",
+                        context,
+                        duration: Toast.LENGTH_SHORT,
+                        gravity: Toast.BOTTOM,
+                      );
+                      BlocProvider.of<SearchBloc>(context)
+                          .add(SearchResetEvent());
+                      return;
+                    } else if (SearchTextChecker.emojiAndsymbolChecker(
+                        _searchText)) {
+                      Toast.show(
+                        "Topic contains Symbols and Emojis !!",
                         context,
                         duration: Toast.LENGTH_SHORT,
                         gravity: Toast.BOTTOM,

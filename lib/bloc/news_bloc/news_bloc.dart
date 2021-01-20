@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:network_caching_hive/models/models.dart';
 import 'package:network_caching_hive/repositories/repositories.dart';
 import 'package:network_caching_hive/utils/utils.dart';
@@ -12,14 +13,17 @@ part 'news_state.dart';
 class NewsBloc extends Bloc<NewsEvent, NewsState> {
   final CacheRepository cacheRepository;
   final NetworkRepository networkRepository;
+  final DataConnectionChecker dataConnectionChecker;
   NewsBloc({
     @required this.cacheRepository,
     @required this.networkRepository,
+    @required this.dataConnectionChecker,
   }) : super(NewsInitial(
           removed: cacheRepository.removeAllCache(StringData.homeKey),
         ));
 
   final String homeKey = StringData.homeKey;
+  var listner;
 
   @override
   Stream<NewsState> mapEventToState(
@@ -51,8 +55,13 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       try {
         final String _rssData = await _getRssDataFromNetwork(event.topic);
         yield* _newsItemCacheCheckToResultMaker(event.topic, _rssData);
-      } catch (e) {
-        yield NewsError();
+      } catch (_) {
+        if (!(await dataConnectionChecker.hasConnection)) {
+          yield NewsItemError(message: 'No Network !!', topic: event.topic);
+        } else {
+          yield NewsItemError(
+              message: 'No News Available !!', topic: event.topic);
+        }
       }
     } else {
       yield* _newsItemLoaderMaker(event.topic);
@@ -75,7 +84,7 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       List<News> _newsList = await _itemListMaker(_eventTopic);
       yield NewsItemLoadedState(newsList: _newsList, topic: _eventTopic);
     } catch (_) {
-      yield NewsError();
+      yield NewsItemError(message: 'No News Available !!', topic: _eventTopic);
     }
   }
 
@@ -85,13 +94,14 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
     if (_cacheInserted) {
       yield* _newsItemLoaderMaker(_eventTopic);
     } else {
-      yield NewsError();
+      yield NewsItemError(message: 'No News Available !!', topic: _eventTopic);
     }
   }
 
   Stream<NewsState> _newsItemRefreshMapping(RefreshItemEvent event) async* {
     final String _getCache = await cacheRepository.getCache(event.topic);
-    if (_getCache != 'no_cache' && _getCache != null && _getCache.isNotEmpty) {
+    if (_getCache != 'no_cache') {
+      //Excluded if (_getCache != 'no_cache' || _getCache != null || _getCache.isNotEmpty)
       try {
         final String _rssData = await _getRssDataFromNetwork(event.topic);
         yield* _newsItemCacheCheckToResultMaker(event.topic, _rssData);
@@ -99,8 +109,21 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
         yield* _newsItemCacheCheckToResultMaker(event.topic, _getCache);
       }
     } else {
-      yield NewsError();
+      try {
+        final String _rssData = await _getRssDataFromNetwork(event.topic);
+        yield* _newsItemCacheCheckToResultMaker(event.topic, _rssData);
+      } catch (_) {
+        if (!(await dataConnectionChecker.hasConnection)) {
+          yield NewsItemError(message: 'No Network !!', topic: event.topic);
+        } else {
+          yield NewsItemError(
+              message: 'No News Available !!', topic: event.topic);
+        }
+      }
     }
+    /* else {
+      yield NewsItemError(message: 'No News Available !!', topic: event.topic);
+    } */
   }
 
   Stream<NewsState> _newsHomeMapping(String _homeKey) async* {
@@ -110,7 +133,11 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
         final String _homeRssData = await _getHomeRssDataFromNetwork();
         yield* _newsHomeCacheCheckToResultMaker(_homeKey, _homeRssData);
       } catch (e) {
-        yield NewsError();
+        if (!(await dataConnectionChecker.hasConnection)) {
+          yield NewsHomeError(message: 'No Network !!');
+        } else {
+          yield NewsHomeError(message: 'No News Available !!');
+        }
       }
     } else {
       yield* _newsHomeLoaderMaker(_homeKey);
@@ -133,7 +160,7 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       List<News> _homeNewsList = await _homeListMaker(_homeKey);
       yield NewsHomeLoadedState(newsList: _homeNewsList);
     } catch (_) {
-      NewsError();
+      NewsHomeError(message: 'No News Available !!');
     }
   }
 
@@ -144,15 +171,16 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
     if (_homeCacheInserted) {
       yield* _newsHomeLoaderMaker(_homeKey);
     } else {
-      yield NewsError();
+      yield NewsHomeError(message: 'No News Available !!');
     }
   }
 
   Stream<NewsState> _newsHomeRefreshMapping(String _homeKey) async* {
     final String _getHomeCache = await cacheRepository.getHomeCache(_homeKey);
-    if (_getHomeCache != 'no_cache' &&
+    if (_getHomeCache != 'no_cache') {
+      /*Excluded *if (_getHomeCache != 'no_cache' &&
         _getHomeCache != null &&
-        _getHomeCache.isNotEmpty) {
+        _getHomeCache.isNotEmpty)*/
       try {
         final String _homeRssData = await _getHomeRssDataFromNetwork();
         yield* _newsHomeCacheCheckToResultMaker(_homeKey, _homeRssData);
@@ -160,7 +188,17 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
         yield* _newsHomeCacheCheckToResultMaker(_homeKey, _getHomeCache);
       }
     } else {
-      yield NewsError();
+      try {
+        final String _homeRssData = await _getHomeRssDataFromNetwork();
+        yield* _newsHomeCacheCheckToResultMaker(_homeKey, _homeRssData);
+      } catch (e) {
+        if (!(await dataConnectionChecker.hasConnection)) {
+          yield NewsHomeError(message: 'No Network !!');
+        } else {
+          yield NewsHomeError(message: 'No News Available !!');
+        }
+      }
+      //yield NewsHomeError(message: 'No News Available !!');
     }
   }
 }
