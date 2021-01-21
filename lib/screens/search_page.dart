@@ -87,6 +87,14 @@ class _SearchPageState extends State<SearchPage> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: BlocBuilder<SearchBloc, SearchState>(
+              buildWhen: (previous, current) {
+                if (previous is SearchInitial && current is SearchInitial) {
+                  print('Search Not Building');
+                  return false;
+                }
+                print('Search Building');
+                return true;
+              },
               builder: (context, state) {
                 if (state is SearchOptionLoadedState) {
                   return searchItem(state.topic, state.newsList, state.isFound);

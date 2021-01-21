@@ -32,6 +32,19 @@ class RightSide extends StatelessWidget {
                 padding:
                     const EdgeInsets.only(top: 20.0, bottom: 20.0, left: 20.0),
                 child: BlocBuilder<NavigationBloc, NavigationState>(
+                  buildWhen: (previous, current) {
+                    if (previous is NavigationItemSelectedState &&
+                        current is NavigationItemSelectedState) {
+                      if (previous.selectedIndex == current.selectedIndex) {
+                        return false;
+                      }
+                    }
+                    if (previous is NavigationHomeSelectedState &&
+                        current is NavigationHomeSelectedState) {
+                      return false;
+                    }
+                    return true;
+                  },
                   builder: (context, state) {
                     if (state is NavigationItemSelectedState) {
                       return headingTopicArea(state.title, context);
@@ -121,7 +134,7 @@ class _NewsBodyState extends State<NewsBody> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<NewsBloc, NewsState>(
-      buildWhen: (previous, current) {
+      /*  buildWhen: (previous, current) {
         if (previous is NewsItemLoadedState && current is NewsItemLoadedState) {
           if (previous.topic == current.topic) {
             return false;
@@ -131,7 +144,7 @@ class _NewsBodyState extends State<NewsBody> {
           return false;
         }
         return true;
-      },
+      }, */
       listener: (context, state) {
         if (state is NewsItemLoadedState || state is NewsHomeLoadedState) {
           _refreshCompleter?.complete();

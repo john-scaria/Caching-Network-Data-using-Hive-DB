@@ -19,7 +19,7 @@ class NavigationItemSelectedState extends NavigationState {
   });
 }
 
-class NavigationLoading extends NavigationState {}
+//class NavigationLoading extends NavigationState {}
 
 class NavigationHomeSelectedState extends NavigationState {
   final String title;

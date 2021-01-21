@@ -16,7 +16,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
   Stream<NavigationState> mapEventToState(
     NavigationEvent event,
   ) async* {
-    yield NavigationLoading();
+    //yield NavigationLoading();
     if (event is NavigationItemTappedEvent) {
       yield NavigationItemSelectedState(
         title: event.title,

@@ -112,6 +112,19 @@ class LeftSide extends StatelessWidget {
               );
             },
             child: BlocBuilder<NavigationBloc, NavigationState>(
+              buildWhen: (previous, current) {
+                if (previous is NavigationItemSelectedState &&
+                    current is NavigationItemSelectedState) {
+                  if (previous.selectedIndex == current.selectedIndex) {
+                    return false;
+                  }
+                }
+                if (previous is NavigationHomeSelectedState &&
+                    current is NavigationHomeSelectedState) {
+                  return false;
+                }
+                return true;
+              },
               builder: (context, state) {
                 if (state is NavigationItemSelectedState) {
                   if (state.selectedIndex == index) {
